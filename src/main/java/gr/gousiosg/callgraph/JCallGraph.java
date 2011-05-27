@@ -1,10 +1,6 @@
 package gr.gousiosg.callgraph;
 
-/**
- * Hello world!
- *
- */
-public class App 
+public class JCallGraph 
 {
     public static void main( String[] args )
     {
