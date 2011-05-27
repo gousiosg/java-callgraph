@@ -3,7 +3,8 @@ package gr.gousiosg.callgraph;
 
 import java.io.IOException;
 
-import org.objectweb.asm.ClassReader;
+import org.apache.bcel.classfile.ClassParser;
+
 
 /**
  * Constructs a callgraph out of a JAR archive. Can combine multiple archives
@@ -15,12 +16,14 @@ import org.objectweb.asm.ClassReader;
 public class JCallGraph {
 
     public static void main(String[] args) {
+        ClassParser cp;
         try {
-            ClassPrinter cp = new ClassPrinter(); 
-            ClassReader cr = new ClassReader("java.lang.Thread"); 
-            cr.accept(cp, 0);
+            cp = new ClassParser("/Volumes/Files/Developer/java-callgraph/target/classes/gr/gousiosg/callgraph/ClassVisitor.class");
+            ClassVisitor visitor = new ClassVisitor(cp.parse());
+            visitor.start();
         } catch (IOException e) {
-            
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-    }
+    }   
 }

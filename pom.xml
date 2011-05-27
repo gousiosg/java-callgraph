@@ -23,9 +23,9 @@
   		<scope>compile</scope>
   	</dependency>
   	<dependency>
-  		<groupId>asm</groupId>
-  		<artifactId>asm-all</artifactId>
-  		<version>3.3</version>
+  		<groupId>org.apache.bcel</groupId>
+  		<artifactId>bcel</artifactId>
+  		<version>5.2</version>
   		<type>jar</type>
   		<scope>compile</scope>
   	</dependency>
