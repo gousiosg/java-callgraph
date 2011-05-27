@@ -34,7 +34,8 @@ public class MethodVisitor extends EmptyVisitor {
     public void start() {
         if (mg.isAbstract() || mg.isNative())
             return;
-        for (InstructionHandle ih = mg.getInstructionList().getStart(); ih != null; ih = ih.getNext()) {
+        for (InstructionHandle ih = mg.getInstructionList().getStart(); 
+                ih != null; ih = ih.getNext()) {
             Instruction i = ih.getInstruction();
             
             if (!visitInstruction(i))
@@ -46,7 +47,8 @@ public class MethodVisitor extends EmptyVisitor {
         short opcode = i.getOpcode();
 
         return ((InstructionConstants.INSTRUCTIONS[opcode] != null)
-                && !(i instanceof ConstantPushInstruction) && !(i instanceof ReturnInstruction));
+                && !(i instanceof ConstantPushInstruction) 
+                && !(i instanceof ReturnInstruction));
     }
 
     /** Method invocation. */
