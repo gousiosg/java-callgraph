@@ -6,14 +6,18 @@ import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
 
+/**
+ * The simplest of class visitors, invokes the method visitor class for each
+ * method found.
+ */
 public class ClassVisitor extends EmptyVisitor {
 
-    JavaClass visitedClass;
-    private ConstantPoolGen cp;
+    JavaClass clazz;
+    private ConstantPoolGen constants;
 
     public ClassVisitor(JavaClass jc) {
-        visitedClass = jc;
-        cp = new ConstantPoolGen(visitedClass.getConstantPool());
+        clazz = jc;
+        constants = new ConstantPoolGen(clazz.getConstantPool());
     }
 
     public void visitJavaClass(JavaClass jc) {
@@ -23,12 +27,12 @@ public class ClassVisitor extends EmptyVisitor {
     }
 
     public void visitMethod(Method method) {
-        MethodGen mg = new MethodGen(method, visitedClass.getClassName(), cp);
-        MethodVisitor visitor = new MethodVisitor(mg, visitedClass);
+        MethodGen mg = new MethodGen(method, clazz.getClassName(), constants);
+        MethodVisitor visitor = new MethodVisitor(mg, clazz);
         visitor.start(); 
     }
     
     public void start() {
-        visitJavaClass(visitedClass);
+        visitJavaClass(clazz);
     }
 }
