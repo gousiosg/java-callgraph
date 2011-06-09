@@ -1,0 +1,10 @@
+Java Call Graph
+---------------
+
+Programs for generating static and dynamic call graphs
+
+
+-Known Restrictions
+
+* The static call graph generator does not account for methods invoked using
+  reflection. Thorough dynamic analysis is required  

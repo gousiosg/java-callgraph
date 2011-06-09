@@ -1,4 +1,4 @@
-package gr.gousiosg.callgraph;
+package gr.gousiosg.javacg.stat;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,9 +6,7 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.ClassParser;
-
 
 /**
  * Constructs a callgraph out of a JAR archive. Can combine multiple archives

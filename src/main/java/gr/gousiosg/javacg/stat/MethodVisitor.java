@@ -1,4 +1,4 @@
-package gr.gousiosg.callgraph;
+package gr.gousiosg.javacg.stat;
 
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.ConstantPoolGen;
