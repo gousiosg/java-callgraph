@@ -47,65 +47,75 @@ public class Instrumenter implements ClassFileTransformer {
     static List<Pattern> pkgIncl = new ArrayList<Pattern>();
     static List<Pattern> pkgExcl = new ArrayList<Pattern>();
 
-    public static void premain(String argument,
-            Instrumentation instrumentation) {
-        
-        //incl=com.foo.*,gr.bar.foo;excl=com.bar.foo.*
-        
-        String[] tokens = argument.split(";");
-        
-        if (tokens.length <= 1) {
-            System.err.print("Missing delimeter ; from argument:" + tokens);
+    public static void premain(String argument, Instrumentation instrumentation) {
+
+        // incl=com.foo.*,gr.bar.foo;excl=com.bar.foo.*
+
+        if (argument == null) {
+            err("Missing configuration argument");
             return;
         }
-        
+
+        err("Argument is: " + argument);
+
+        String[] tokens = argument.split(";");
+
+        if (tokens.length <= 1) {
+            err("Missing delimeter ;");
+            return;
+        }
+
         for (String token : tokens) {
-            String[] args = token.split("="); 
-            if (args.length <= 2) {
-                System.err.print("Missing argument delimeter =:" + token);
+            String[] args = token.split("=");
+            if (args.length < 2) {
+                err("Missing argument delimeter =:" + token);
                 return;
             }
-            
+
             String argtype = args[0];
-            
-            if (!argtype.equals("inc") || !argtype.equals("excl")) {
-                System.err.print("wrong argument:" + argtype);
+
+            if (!argtype.equals("incl") && !argtype.equals("excl")) {
+                err("Wrong argument: " + argtype);
                 return;
             }
-            
+
             String[] patterns = args[1].split(",");
-            
+
             for (String pattern : patterns) {
                 Pattern p = null;
+                err("Compiling " + argtype + " pattern:" + pattern);
                 try {
                     p = Pattern.compile(pattern);
                 } catch (PatternSyntaxException pse) {
-                    System.err.print("pattern: " + pattern + " not valid, ignoring");
+                    err("pattern: " + pattern + " not valid, ignoring");
                 }
                 if (argtype.equals("inc"))
                     pkgIncl.add(p);
-                else 
+                else
                     pkgExcl.add(p);
             }
         }
-        
+
         instrumentation.addTransformer(new Instrumenter());
     }
 
     public byte[] transform(ClassLoader loader, String className, Class clazz,
             java.security.ProtectionDomain domain, byte[] bytes) {
         boolean enhanceClass = false;
-        
+
+        String name = className.replace("/", ".");
+        err("Examining class: " + name);
+
         for (Pattern p : pkgIncl) {
-            Matcher m = p.matcher(clazz.getCanonicalName());
+            Matcher m = p.matcher(name);
             if (m.matches()) {
                 enhanceClass = true;
                 break;
             }
         }
-        
+
         for (Pattern p : pkgExcl) {
-            Matcher m = p.matcher(clazz.getCanonicalName());
+            Matcher m = p.matcher(name);
             if (m.matches()) {
                 enhanceClass = false;
                 break;
@@ -115,6 +125,7 @@ public class Instrumenter implements ClassFileTransformer {
         if (enhanceClass) {
             return enhanceClass(className, bytes);
         } else {
+            err("Examining class: " + name);
             return bytes;
         }
     }
@@ -150,5 +161,9 @@ public class Instrumenter implements ClassFileTransformer {
         method.insertBefore("gr.gousiosg.javacg.dyn.push(\"" + className
                 + "\",\"" + method.getName() + "\");");
         method.insertAfter("gr.gousiosg.javacg.dyn.pop();");
+    }
+
+    private static void err(String msg) {
+        System.err.println("[JAVACG-DYN] " + msg);
     }
 }
