@@ -3,38 +3,67 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>gr.gousiosg</groupId>
-  <artifactId>jcallgraph</artifactId>
+  <artifactId>javacg</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>jcallgraph</name>
-  <url>http://maven.apache.org</url>
+  <name>javacg</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
-  	<dependency>
-  		<groupId>junit</groupId>
-  		<artifactId>junit</artifactId>
-  		<version>4.8.2</version>
-  		<type>jar</type>
-  		<scope>compile</scope>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.apache.bcel</groupId>
-  		<artifactId>bcel</artifactId>
-  		<version>5.2</version>
-  		<type>jar</type>
-  		<scope>compile</scope>
-  	</dependency>
-  	 <dependency>
-    	<groupId>javassist</groupId>
-    	<artifactId>javassist</artifactId>
-    	<version>3.12.1.GA</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
+    <dependency>
+      <groupId>org.apache.bcel</groupId>
+      <artifactId>bcel</artifactId>
+      <version>5.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>3.12.1.GA</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2.1</version>
+        <configuration>
+          <descriptors>
+            <descriptor>assembly.xml</descriptor>
+          </descriptors>
+          <archive>
+            <manifestEntries>
+              <Can-Redefine-Classes>true</Can-Redefine-Classes>
+              <Premain-Class>gr.gousiosg.javacg.dyn.Instrumenter</Premain-Class>
+            </manifestEntries>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <optimize>false</optimize>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+  </build>
 </project>
