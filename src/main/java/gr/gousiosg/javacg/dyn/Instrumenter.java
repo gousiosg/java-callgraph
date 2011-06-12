@@ -170,6 +170,6 @@ public class Instrumenter implements ClassFileTransformer {
     }
 
     private static void err(String msg) {
-        System.err.println("[JAVACG-DYN] " + msg);
+        //System.err.println("[JAVACG-DYN] " + msg);
     }
 }
