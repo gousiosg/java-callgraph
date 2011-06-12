@@ -28,6 +28,8 @@
 
 package gr.gousiosg.javacg.dyn;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
@@ -60,7 +62,7 @@ public class Instrumenter implements ClassFileTransformer {
 
         String[] tokens = argument.split(";");
 
-        if (tokens.length <= 1) {
+        if (tokens.length < 1) {
             err("Missing delimeter ;");
             return;
         }
@@ -83,13 +85,13 @@ public class Instrumenter implements ClassFileTransformer {
 
             for (String pattern : patterns) {
                 Pattern p = null;
-                err("Compiling " + argtype + " pattern:" + pattern);
+                err("Compiling " + argtype + " pattern:" + pattern + "$");
                 try {
-                    p = Pattern.compile(pattern);
+                    p = Pattern.compile(pattern + "$");
                 } catch (PatternSyntaxException pse) {
                     err("pattern: " + pattern + " not valid, ignoring");
                 }
-                if (argtype.equals("inc"))
+                if (argtype.equals("incl"))
                     pkgIncl.add(p);
                 else
                     pkgExcl.add(p);
@@ -104,7 +106,6 @@ public class Instrumenter implements ClassFileTransformer {
         boolean enhanceClass = false;
 
         String name = className.replace("/", ".");
-        err("Examining class: " + name);
 
         for (Pattern p : pkgIncl) {
             Matcher m = p.matcher(name);
@@ -117,6 +118,7 @@ public class Instrumenter implements ClassFileTransformer {
         for (Pattern p : pkgExcl) {
             Matcher m = p.matcher(name);
             if (m.matches()) {
+                err("Not enhansing class: " + name);
                 enhanceClass = false;
                 break;
             }
@@ -125,7 +127,6 @@ public class Instrumenter implements ClassFileTransformer {
         if (enhanceClass) {
             return enhanceClass(className, bytes);
         } else {
-            err("Examining class: " + name);
             return bytes;
         }
     }
@@ -134,8 +135,9 @@ public class Instrumenter implements ClassFileTransformer {
         ClassPool pool = ClassPool.getDefault();
         CtClass clazz = null;
         try {
-            clazz = pool.makeClass(new java.io.ByteArrayInputStream(b));
+            clazz = pool.makeClass(new ByteArrayInputStream(b));
             if (!clazz.isInterface()) {
+                err("Enhancing class: " + name);
                 CtBehavior[] methods = clazz.getDeclaredBehaviors();
                 for (int i = 0; i < methods.length; i++) {
                     if (!methods[i].isEmpty()) {
@@ -144,10 +146,14 @@ public class Instrumenter implements ClassFileTransformer {
                 }
                 b = clazz.toBytecode();
             }
-        } catch (Exception e) {
+        } catch (CannotCompileException e) {
             e.printStackTrace();
-            throw new RuntimeException("Could not instrument  " + name
-                    + ",  exception : " + e.getMessage());
+            err("Cannot compile: " + e.getMessage());
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            err("Cannot find: " + e.getMessage());
+        } catch (IOException e) {
+            err("Error writing: " + e.getMessage());
         } finally {
             if (clazz != null) {
                 clazz.detach();
@@ -158,9 +164,9 @@ public class Instrumenter implements ClassFileTransformer {
 
     private void enhanceMethod(CtBehavior method, String className)
             throws NotFoundException, CannotCompileException {
-        method.insertBefore("gr.gousiosg.javacg.dyn.push(\"" + className
-                + "\",\"" + method.getName() + "\");");
-        method.insertAfter("gr.gousiosg.javacg.dyn.pop();");
+        method.insertBefore("gr.gousiosg.javacg.dyn.Graph.push(\"" + className
+                + ":" + method.getName() + "\");");
+        method.insertAfter("gr.gousiosg.javacg.dyn.Graph.pop();");
     }
 
     private static void err(String msg) {

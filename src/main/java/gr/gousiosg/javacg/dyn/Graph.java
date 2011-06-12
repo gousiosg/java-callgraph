@@ -28,19 +28,32 @@
 
 package gr.gousiosg.javacg.dyn;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 public class Graph {
 
-    private static Stack<String> stack = new Stack<String>();
-
-    public static void pushNode(String className, String methodName) {
-        String entry = className + ":" + methodName;
-        System.err.println(stack.peek() + " " + entry);
-        stack.push(entry);
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                for (String key : callgraph.keySet()) {
+                    System.err.println(key + " " + callgraph.get(key));
+                }
+            }
+        });
     }
 
-    public static void popNode() {
+    private static Stack<String> stack = new Stack<String>();
+    private static Map<String, String> callgraph = new HashMap<String, String>();
+
+    public static void push(String callname) {
+        if (!stack.isEmpty())
+            callgraph.put(stack.peek(), callname);
+        stack.push(callname);
+    }
+
+    public static void pop() {
         stack.pop();
     }
 }
