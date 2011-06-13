@@ -18,7 +18,7 @@
       <groupId>org.apache.bcel</groupId>
       <artifactId>bcel</artifactId>
       <version>5.2</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javassist</groupId>
@@ -35,12 +35,14 @@
         <version>2.2.1</version>
         <configuration>
           <descriptors>
-            <descriptor>assembly.xml</descriptor>
+            <descriptor>assembly-dyn.xml</descriptor>
+            <descriptor>assembly-st.xml</descriptor>
           </descriptors>
           <archive>
             <manifestEntries>
               <Can-Redefine-Classes>true</Can-Redefine-Classes>
               <Premain-Class>gr.gousiosg.javacg.dyn.Instrumenter</Premain-Class>
+              <Main-Class>gr.gousiosg.javacg.stat.JCallGraph</Main-Class>
             </manifestEntries>
           </archive>
         </configuration>
@@ -62,8 +64,6 @@
           <target>1.5</target>
         </configuration>
       </plugin>
-
     </plugins>
-
   </build>
 </project>

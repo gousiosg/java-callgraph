@@ -17,7 +17,7 @@ The java-callgraph package is build with maven. Install maven and do:
 mvn install
 </code>
 
-This will produce a `target` directory with two jars
+This will produce a `target` directory with two executable jars:
 
 #### Examples
 
@@ -33,6 +33,10 @@ java
     -Xbootclasspath:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/classes.jar:jar/batik-all.jar:jar/xml-apis-ext.jar 
     -javaagent:target/javacg-0.1-SNAPSHOT-dycg-agent.jar="incl=org.apache.batik.*,org.w3c.*;" 
     -jar dacapo-9.12-bach.jar batik -s small
+</code>
+
+<code>
+java -Xbootclasspath:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/classes.jar:jar/lucene-core-2.4.jar:jar/luindex.jar -javaagent:target/javacg-0.1-SNAPSHOT-dycg-agent.jar="incl=org.apache.lucene.*;" -jar dacapo-9.12-bach.jar luindex  -s small
 </code>
 
 #### Known Restrictions
