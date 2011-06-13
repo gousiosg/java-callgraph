@@ -56,7 +56,7 @@ public class Graph {
                 });
                 
                 for (Pair<String, String> key : keys) {
-                    System.err.println(key + " " + callgraph.get(key));
+                    System.out.println(key + " " + callgraph.get(key));
                 }
             }
         });
