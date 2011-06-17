@@ -45,6 +45,7 @@ public class Graph {
     private static Map<Pair<String, String>, Integer> callgraph = new HashMap<Pair<String,String>, Integer>();
     static FileWriter fw; 
     static StringBuffer sb;
+    static long threadid = -1L;
     
     static {
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -71,7 +72,7 @@ public class Graph {
                 }
             }
         });
-        File log = new File("method-timing.txt");
+        File log = new File("calltrace.txt");
         try {
             fw = new FileWriter(log);
         } catch (Exception e) {
@@ -81,6 +82,12 @@ public class Graph {
     }
 
     public static void push(String callname) throws IOException {
+        if (threadid == -1)
+            threadid = Thread.currentThread().getId();
+        
+        if (Thread.currentThread().getId() != threadid)
+            return;
+        
         if (!stack.isEmpty()) {
             Pair<String, String> p = new Pair<String, String>(stack.peek(), callname); 
             if (callgraph.containsKey(p))
@@ -97,6 +104,12 @@ public class Graph {
     }
 
     public static void pop() throws IOException {
+        if (threadid == -1)
+            threadid = Thread.currentThread().getId();
+        
+        if (Thread.currentThread().getId() != threadid)
+            return;
+        
         String returnFrom = stack.pop();
         sb.setLength(0);
         sb.append("<[").append(stack.size()).append("]");
