@@ -122,6 +122,8 @@ org.apache.lucene.analysis.Token:termLength org.apache.lucene.analysis.Token:ini
 
 * The static call graph generator does not account for methods invoked via
   reflection.
+* The dynamic call graph generator will not work reliably (or at all) for 
+  multithreaded programs
 
 #### Author
 

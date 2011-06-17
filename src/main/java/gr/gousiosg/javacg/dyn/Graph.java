@@ -28,6 +28,9 @@
 
 package gr.gousiosg.javacg.dyn;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,10 +43,18 @@ public class Graph {
 
     private static Stack<String> stack = new Stack<String>();
     private static Map<Pair<String, String>, Integer> callgraph = new HashMap<Pair<String,String>, Integer>();
+    static FileWriter fw; 
+    static StringBuffer sb;
     
     static {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
+                try {
+                    fw.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 //Sort by number of calls
                 List<Pair<String, String>> keys = new ArrayList<Pair<String, String>>();
                 keys.addAll(callgraph.keySet());
@@ -60,9 +71,16 @@ public class Graph {
                 }
             }
         });
+        File log = new File("method-timing.txt");
+        try {
+            fw = new FileWriter(log);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        sb = new StringBuffer();
     }
 
-    public static void push(String callname) {
+    public static void push(String callname) throws IOException {
         if (!stack.isEmpty()) {
             Pair<String, String> p = new Pair<String, String>(stack.peek(), callname); 
             if (callgraph.containsKey(p))
@@ -70,10 +88,20 @@ public class Graph {
             else
                 callgraph.put(p, 1);
         }
+        sb.setLength(0);
+        sb.append(">[").append(stack.size()).append("]");
+        sb.append("[").append(Thread.currentThread().getId()).append("]");
+        sb.append(callname).append("=").append(System.nanoTime()).append("\n");
+        fw.write(sb.toString());
         stack.push(callname);
     }
 
-    public static void pop() {
-        stack.pop();
+    public static void pop() throws IOException {
+        String returnFrom = stack.pop();
+        sb.setLength(0);
+        sb.append("<[").append(stack.size()).append("]");
+        sb.append("[").append(Thread.currentThread().getId()).append("]");
+        sb.append(returnFrom).append("=").append(System.nanoTime()).append("\n");
+        fw.write(sb.toString());
     }
 }
