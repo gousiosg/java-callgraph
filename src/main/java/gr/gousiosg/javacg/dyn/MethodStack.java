@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-public class Graph {
+public class MethodStack {
 
     private static Stack<String> stack = new Stack<String>();
     private static Map<Pair<String, String>, Integer> callgraph = new HashMap<Pair<String,String>, Integer>();
@@ -106,10 +106,10 @@ public class Graph {
     public static void pop() throws IOException {
         if (threadid == -1)
             threadid = Thread.currentThread().getId();
-        
+
         if (Thread.currentThread().getId() != threadid)
             return;
-        
+
         String returnFrom = stack.pop();
         sb.setLength(0);
         sb.append("<[").append(stack.size()).append("]");

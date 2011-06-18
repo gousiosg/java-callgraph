@@ -164,9 +164,15 @@ public class Instrumenter implements ClassFileTransformer {
 
     private void enhanceMethod(CtBehavior method, String className)
             throws NotFoundException, CannotCompileException {
-        method.insertBefore("gr.gousiosg.javacg.dyn.Graph.push(\"" + className
-                + ":" + method.getName() + "\");");
-        method.insertAfter("gr.gousiosg.javacg.dyn.Graph.pop();");
+        String name = className.substring(className.lastIndexOf('.') + 1, className.length());
+        String methodName = method.getName();
+
+        if (method.getName().equals(name))
+            methodName = "<init>";
+
+        method.insertBefore("gr.gousiosg.javacg.dyn.MethodStack.push(\"" + className
+                + ":" + methodName + "\");");
+        method.insertAfter("gr.gousiosg.javacg.dyn.MethodStack.pop();");
     }
 
     private static void err(String msg) {
