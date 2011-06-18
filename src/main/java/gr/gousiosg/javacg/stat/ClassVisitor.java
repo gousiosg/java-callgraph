@@ -72,13 +72,13 @@ public class ClassVisitor extends EmptyVisitor {
             }
         }
     }
-    
+
     public void visitMethod(Method method) {
         MethodGen mg = new MethodGen(method, clazz.getClassName(), constants);
         MethodVisitor visitor = new MethodVisitor(mg, clazz);
         visitor.start(); 
     }
-    
+
     public void start() {
         visitJavaClass(clazz);
     }
