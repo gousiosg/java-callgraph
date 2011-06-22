@@ -49,7 +49,7 @@ public class ClassVisitor extends EmptyVisitor {
     public ClassVisitor(JavaClass jc) {
         clazz = jc;
         constants = new ConstantPoolGen(clazz.getConstantPool());
-        classReferenceFormat = "C:" + clazz.getClassName() + ":%s";
+        classReferenceFormat = "C:" + clazz.getClassName() + " %s";
     }
 
     public void visitJavaClass(JavaClass jc) {
