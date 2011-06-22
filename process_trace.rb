@@ -30,8 +30,8 @@ File.open(ARGV[0]).each do |line|
     time = time.to_i
 
     case type
-	when '<':
-		# Can only return from inner or same depth level frame
+    when '<':
+        # Can only return from inner or same depth level frame
         if not [d, d - 1].include? depth then
             print "Return from stack depth: ", d,
                   " to depth:", depth, ", line ",
@@ -41,44 +41,44 @@ File.open(ARGV[0]).each do |line|
         m = mstack.pop
         t = tstack.pop
 
-		# Sanity check
+        # Sanity check
         if not m == method then
             print "Method ", method, " not found at depth ",
                   depth, " line ", lines_read, "\n"
             return
-		end
+        end
 
-		# Total time for a method is the time to execute it minus the time to
-		# invoke all called methods
+        # Total time for a method is the time to execute it minus the time to
+        # invoke all called methods
         method_time = time - t
         results[method] = results.fetch(method, 0) + method_time -
-						  total_time_at_depth.fetch(depth + 1, 0)
+                          total_time_at_depth.fetch(depth + 1, 0)
 
-		# Sanity check
+        # Sanity check
         if method_time - total_time_at_depth.fetch(depth + 1, 0) < 0 then
-			print "Time required for method #{method} (#{method_time}) less
+            print "Time required for method #{method} (#{method_time}) less
                    than time for required for inner frame
                    (#{total_time_at_depth.fetch(depth + 1, 0)})! ",
-				   "Line ", lines_read, "\n"
+                   "Line ", lines_read, "\n"
             return
         end
 
-		# Total for a frame is the total time of its first level decendant
-		# plus the time required to execute all methods at the same depth
+        # Total for a frame is the total time of its first level decendant
+        # plus the time required to execute all methods at the same depth
         total_time_at_depth[depth] = method_time -
-							         total_time_at_depth.fetch(depth + 1, 0) +
+                                     total_time_at_depth.fetch(depth + 1, 0) +
                                      total_time_at_depth.fetch(depth, 0)
         # Inner stack frame time was used already at this depth,
-		# delete to avoid reusing
-		total_time_at_depth.delete(depth + 1)
+        # delete to avoid reusing
+        total_time_at_depth.delete(depth + 1)
 
-		# Reset total time for depth 0 after it has been used
-		# since the statement above never runs at this depth
+        # Reset total time for depth 0 after it has been used
+        # since the statement above never runs at this depth
         if depth == 0:
           total_time_at_depth.delete(depth)
         end
-	when '>':
-		# Can only go into an inner or same depth level frame
+    when '>':
+        # Can only go into an inner or same depth level frame
         if not [d, d + 1].include? depth then
             print "Jump from stack depth: #{d} to depth: #{depth},
                    line #{lines_read} \n"
