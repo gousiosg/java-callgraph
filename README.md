@@ -18,12 +18,10 @@ The java-callgraph package is build with maven. Install maven and do:
 mvn install
 </code>
 
-This will produce a `target` directory with two executable jars:
-
-- `javacg-0.1-SNAPSHOT-static.jar`: This includes the static call graph
-generator
-- `javacg-0.1-SNAPSHOT-dycg-agent.jar`: This includes the dynamic call
-graph generator
+This will produce a `target` directory with the following three jars:
+- javacg-0.1-SNAPSHOT.jar: This is the standard maven packaged jar with static and dynamic call graph generator classes
+- `javacg-0.1-SNAPSHOT-static.jar`: This is an executable jar which includes the static call graph generator
+- `javacg-0.1-SNAPSHOT-dycg-agent.jar`: This is an executable jar which includes the dynamic call graph generator
 
 #### Run
 
