@@ -17,7 +17,7 @@
     <dependency>
       <groupId>org.apache.bcel</groupId>
       <artifactId>bcel</artifactId>
-      <version>5.2</version>
+      <version>6.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -62,7 +62,7 @@
         <configuration>
           <optimize>false</optimize>
           <source>1.6</source>
-          <target>1.6</target>
+          <target>1.8</target>
         </configuration>
       </plugin>
     </plugins>
