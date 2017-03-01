@@ -11,3 +11,7 @@ bin/
 .project
 .settings/
 
+# intellij
+.idea/
+*.iml
+
