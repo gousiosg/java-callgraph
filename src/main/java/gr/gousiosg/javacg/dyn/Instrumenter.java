@@ -46,8 +46,8 @@ import javassist.NotFoundException;
 
 public class Instrumenter implements ClassFileTransformer {
 
-    static List<Pattern> pkgIncl = new ArrayList<Pattern>();
-    static List<Pattern> pkgExcl = new ArrayList<Pattern>();
+    static List<Pattern> pkgIncl = new ArrayList<>();
+    static List<Pattern> pkgExcl = new ArrayList<>();
 
     public static void premain(String argument, Instrumentation instrumentation) {
 
@@ -63,14 +63,14 @@ public class Instrumenter implements ClassFileTransformer {
         String[] tokens = argument.split(";");
 
         if (tokens.length < 1) {
-            err("Missing delimeter ;");
+            err("Missing delimiter ;");
             return;
         }
 
         for (String token : tokens) {
             String[] args = token.split("=");
             if (args.length < 2) {
-                err("Missing argument delimeter =:" + token);
+                err("Missing argument delimiter =:" + token);
                 return;
             }
 
@@ -118,7 +118,7 @@ public class Instrumenter implements ClassFileTransformer {
         for (Pattern p : pkgExcl) {
             Matcher m = p.matcher(name);
             if (m.matches()) {
-                err("Not enhansing class: " + name);
+                err("Skipping class: " + name);
                 enhanceClass = false;
                 break;
             }
