@@ -12,11 +12,11 @@ A suite of programs for generating static and dynamic call graphs in Java.
 
 #### Compile
 
-The java-callgraph package is build with maven. Install maven and do: 
+The java-callgraph package is build with maven. Install maven and do:
 
-<code>
+```
 mvn install
-</code>
+```
 
 This will produce a `target` directory with the following three jars:
 - javacg-0.1-SNAPSHOT.jar: This is the standard maven packaged jar with static and dynamic call graph generator classes
@@ -31,39 +31,42 @@ Instructions for running the callgraph generators
 
 `javacg-static` accepts as arguments the jars to analyze.
 
-<code>
+```
 java -jar javacg-0.1-SNAPSHOT-static.jar lib1.jar lib2.jar...
-</code>
+```
 
 `javacg-static` produces combined output in the following format:
 
 ###### For methods
 
-<code>
-  M:class1:<method1> (typeofcall)class2:<method2>
-</code>
+```
+  M:class1:<method1>(arg_types) (typeofcall)class2:<method2>(arg_types)
+```
 
 The line means that `method1` of `class1` called `method2` of `class2`.
 The type of call can have one of the following values (refer to
-the [JVM specification](http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html) 
-for the meaning of the calls): 
+the [JVM specification](http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html)
+for the meaning of the calls):
 
  * `M` for `invokevirtual` calls
  * `I` for `invokeinterface` calls
  * `O` for `invokespecial` calls
  * `S` for `invokestatic` calls
+ * `D` for `invokedynamic` calls
+
+For `invokedynamic` calls, it is not possible to infer the argument types.
 
 ###### For classes
 
-<code>
+```
   C:class1 class2
-</code>
+```
 
 This means that some method(s) in `class1` called some method(s) in `class2`.
 
 ##### Dynamic
 
-`javacg-dynamic` uses 
+`javacg-dynamic` uses
 [javassist](http://www.csg.is.titech.ac.jp/~chiba/javassist/) to insert probes
 at method entry and exit points. To be able to analyze a class `javassist` must
 resolve all dependent classes at instrumentation time. To do so, it reads
@@ -81,7 +84,9 @@ entries), `javacg-dynamic` includes support for restricting the set of classes
 to be instrumented through include and exclude statements. The options are
 appended to the `-javaagent` argument and has the following format
 
-<code>-javaagent:javacg-dycg-agent.jar="incl=mylib.*,mylib2.*,java.nio.*;excl=java.nio.charset.*"</code>
+```
+-javaagent:javacg-dycg-agent.jar="incl=mylib.*,mylib2.*,java.nio.*;excl=java.nio.charset.*"
+```
 
 The example above will instrument all classes under the the `mylib`, `mylib2` and
 `java.nio` namespaces, except those that fall under the `java.nio.charset` namespace.
@@ -90,7 +95,7 @@ The example above will instrument all classes under the the `mylib`, `mylib2` an
 java
 -Xbootclasspath:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/classes.jar:mylib.jar
 -javaagent:javacg-0.1-SNAPSHOT-dycg-agent.jar="incl=mylib.*;"
--classpath mylib.jar mylib.Mainclass 
+-classpath mylib.jar mylib.Mainclass
 ```
 
 `javacg-dynamic` produces two kinds of output. On the standard output, it
@@ -110,16 +115,16 @@ a poor man's profiler. The format is the following:
 
 The output line starts with a `<` or `>` depending on whether it is a method
 entry or exit. It then writes the stack depth, thread id and the class and
-method name, followed by a timestamp. The provided `process_trace.rb` 
+method name, followed by a timestamp. The provided `process_trace.rb`
 script processes the callgraph output to generate total time per method
-information. 
+information.
 
 #### Examples
 
-The following examples instrument the 
-[Dacapo benchmark suite](http://dacapobench.org/) to produce dynamic call graphs. 
+The following examples instrument the
+[Dacapo benchmark suite](http://dacapobench.org/) to produce dynamic call graphs.
 The Dacapo benchmarks come in a single big jar archive that contains all dependency
-libraries. To build the boot class path required for the javacg-dyn program, 
+libraries. To build the boot class path required for the javacg-dyn program,
 extract the `dacapo.jar` to a directory: all the required libraries can be found
 in the `jar` directory.
 
@@ -167,7 +172,7 @@ org.apache.lucene.analysis.Token:termLength org.apache.lucene.analysis.Token:ini
 
 * The static call graph generator does not account for methods invoked via
   reflection.
-* The dynamic call graph generator will not work reliably (or at all) for 
+* The dynamic call graph generator will not work reliably (or at all) for
   multithreaded programs
 * The dynamic call graph generator does not handle exceptions very well, so some
 methods might appear as having never returned
@@ -179,4 +184,3 @@ Georgios Gousios <gousiosg@gmail.com>
 #### License
 
 [2-clause BSD](http://www.opensource.org/licenses/bsd-license.php)
-
