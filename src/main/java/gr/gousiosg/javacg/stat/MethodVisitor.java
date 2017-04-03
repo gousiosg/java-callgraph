@@ -77,8 +77,7 @@ public class MethodVisitor extends EmptyVisitor {
 
     private boolean visitInstruction(Instruction i) {
         short opcode = i.getOpcode();
-
-        return ((InstructionConstants.INSTRUCTIONS[opcode] != null)
+        return ((InstructionConst.getInstruction(opcode) != null)
                 && !(i instanceof ConstantPushInstruction) 
                 && !(i instanceof ReturnInstruction));
     }
@@ -101,5 +100,11 @@ public class MethodVisitor extends EmptyVisitor {
     @Override
     public void visitINVOKESTATIC(INVOKESTATIC i) {
         System.out.println(String.format(format,"S",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+    }
+
+    @Override
+    public void visitINVOKEDYNAMIC(INVOKEDYNAMIC i) {
+        System.out.println(String.format(format,"D",i.getType(cp),i.getMethodName(cp),
+                argumentList(i.getArgumentTypes(cp))));
     }
 }
