@@ -51,6 +51,15 @@ public class ClassVisitor extends EmptyVisitor {
         constants = new ConstantPoolGen(clazz.getConstantPool());
         classReferenceFormat = "C:" + clazz.getClassName() + " %s";
     }
+    
+    public void traceNativeFunc(){
+    	//this part of code is try to solve the problem where is my native func, it should be a part of call graph
+        for (Method mth : clazz.getMethods()){
+        	if(mth.isNative()){
+        		System.out.println("__Native_" + clazz.getClassName()+":"+mth.getName());
+        	}
+        }
+    }
 
     public void visitJavaClass(JavaClass jc) {
         jc.getConstantPool().accept(this);
@@ -81,5 +90,6 @@ public class ClassVisitor extends EmptyVisitor {
 
     public void start() {
         visitJavaClass(clazz);
+        traceNativeFunc();
     }
 }
