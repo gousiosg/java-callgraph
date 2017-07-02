@@ -37,44 +37,65 @@ import java.util.jar.JarFile;
 import org.apache.bcel.classfile.ClassParser;
 
 /**
- * Constructs a callgraph out of a JAR archive. Can combine multiple archives
- * into a single call graph.
+ * Constructs a callgraph out of a set of directories, classes and JAR archives.
+ * Can combine multiple archives into a single call graph.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  * 
  */
 public class JCallGraph {
 
-    public static void main(String[] args) {
-        ClassParser cp;
+    public static void processClass(String class_name) throws IOException {
+        ClassParser cp = new ClassParser(class_name);
+        ClassVisitor visitor = new ClassVisitor(cp.parse());
+        visitor.start();
+    }
+
+    public static void processClass(String jar_name, String class_name) throws IOException {
+        ClassParser cp = new ClassParser(jar_name,class_name);
+        ClassVisitor visitor = new ClassVisitor(cp.parse());
+        visitor.start();
+    }
+
+    public static void processJar(JarFile jar) throws IOException {
+        Enumeration<JarEntry> entries = jar.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            if (entry.isDirectory())
+                continue;
+
+            if (!entry.getName().endsWith(".class"))
+                continue;
+
+            processClass(jar.getName(),entry.getName());
+        }
+    }
+
+    public static void processFile(File file) {
         try {
-            for (String arg : args) {
+            if (!file.exists())
+                System.err.println("File " + file.getName() + " does not exist");
 
-                File f = new File(arg);
-                
-                if (!f.exists()) {
-                    System.err.println("Jar file " + arg + " does not exist");
-                }
-                
-                JarFile jar = new JarFile(f);
-
-                Enumeration<JarEntry> entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    if (entry.isDirectory())
-                        continue;
-
-                    if (!entry.getName().endsWith(".class"))
-                        continue;
-
-                    cp = new ClassParser(arg,entry.getName());
-                    ClassVisitor visitor = new ClassVisitor(cp.parse());
-                    visitor.start();
-                }
+            else if (file.isDirectory()) {
+                for (File dfile : file.listFiles())
+                    processFile(dfile);
             }
+
+            else if (file.getName().endsWith(".jar"))
+                processJar(new JarFile(file));
+
+            else if (file.getName().endsWith(".class"))
+                processClass(file.getAbsolutePath());
+
         } catch (IOException e) {
-            System.err.println("Error while processing jar: " + e.getMessage());
+            System.err.println("Error while processing file: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        for (String arg : args) {
+            processFile(new File(arg));
         }
     }
 }
