@@ -36,6 +36,8 @@ import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
 
+import java.io.PrintStream;
+
 /**
  * The simplest of class visitors, invokes the method visitor class for each
  * method found.
@@ -45,37 +47,77 @@ public class ClassVisitor extends EmptyVisitor {
     private JavaClass clazz;
     private ConstantPoolGen constants;
     private String classReferenceFormat;
-    
-    public ClassVisitor(JavaClass jc) {
+    private PrintStream output;
+    private FormatEnumaration format;
+
+    public ClassVisitor(JavaClass jc, PrintStream outputStream, FormatEnumaration format) {
         clazz = jc;
+        this.format = format;
+        this.output = outputStream;
         constants = new ConstantPoolGen(clazz.getConstantPool());
-        classReferenceFormat = "C:" + clazz.getClassName() + " %s";
+        switch (format) {
+            case TXT:
+                classReferenceFormat = "C:" + clazz.getClassName() + " %s";
+                break;
+            case XML:
+                classReferenceFormat = "<constant>%s</constant>";
+                break;
+            default:
+                throw new RuntimeException("Unsupported format "+format);
+        }
+
     }
 
     public void visitJavaClass(JavaClass jc) {
+        switch (format) {
+            case XML:
+                output.println("<class name=\""+jc.getClassName()+"\">");
+                break;
+        }
         jc.getConstantPool().accept(this);
         Method[] methods = jc.getMethods();
-        for (int i = 0; i < methods.length; i++)
+        for (int i = 0; i < methods.length; i++) {
             methods[i].accept(this);
+        }
+        switch (format) {
+            case XML:
+                output.println("</class>");
+                break;
+        }
     }
 
     public void visitConstantPool(ConstantPool constantPool) {
-        for (int i = 0; i < constantPool.getLength(); i++) {
-            Constant constant = constantPool.getConstant(i);
-            if (constant == null)
-                continue;
-            if (constant.getTag() == 7) {
-                String referencedClass = 
-                    constantPool.constantToString(constant);
-                System.out.println(String.format(classReferenceFormat,
-                        referencedClass));
-            }
+        switch (format) {
+            case TXT:
+                for (int i = 0; i < constantPool.getLength(); i++) {
+                    Constant constant = constantPool.getConstant(i);
+                    if (constant == null)
+                        continue;
+                    if (constant.getTag() == 7) {
+                        String referencedClass =
+                                constantPool.constantToString(constant);
+                        output.println(String.format(classReferenceFormat,
+                                referencedClass));
+                    }
+                }
+            case XML:
+                for (int i = 0; i < constantPool.getLength(); i++) {
+                    Constant constant = constantPool.getConstant(i);
+                    if (constant == null)
+                        continue;
+                    if (constant.getTag() == 7) {
+                        String referencedClass =
+                                constantPool.constantToString(constant);
+                        output.println(String.format(classReferenceFormat,
+                                referencedClass));
+                    }
+                }
         }
     }
 
     public void visitMethod(Method method) {
         MethodGen mg = new MethodGen(method, clazz.getClassName(), constants);
-        MethodVisitor visitor = new MethodVisitor(mg, clazz);
+        MethodVisitor visitor = new MethodVisitor(mg, clazz,output,format);
         visitor.start(); 
     }
 

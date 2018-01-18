@@ -31,6 +31,8 @@ package gr.gousiosg.javacg.stat;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.*;
 
+import java.io.PrintStream;
+
 /**
  * The simplest of method visitors, prints any invoked method
  * signature for all method invocations.
@@ -43,22 +45,46 @@ public class MethodVisitor extends EmptyVisitor {
     private MethodGen mg;
     private ConstantPoolGen cp;
     private String format;
+    private PrintStream output;
+    private FormatEnumaration outputFormat;
 
-    public MethodVisitor(MethodGen m, JavaClass jc) {
+    public MethodVisitor(MethodGen m, JavaClass jc, PrintStream output, FormatEnumaration format) {
         visitedClass = jc;
         mg = m;
         cp = mg.getConstantPool();
-        format = "M:" + visitedClass.getClassName() + ":" + mg.getName() + "(" + argumentList(mg.getArgumentTypes()) + ")"
-            + " " + "(%s)%s:%s(%s)";
+        this.outputFormat = format;
+        this.output = output;
+        switch (outputFormat) {
+        case TXT:
+            this.format = "M:" + visitedClass.getClassName() + ":" + mg.getName() + "(" + argumentList(mg.getArgumentTypes()) + ")"
+                    + " " + "(%s)%s:%s(%s)";
+            break;
+        case XML:
+            this.format = "<invoke type=\"%s\" reference=\"%s\" call=\"%s\"><args>%s</args></invoke>";
+            break;
+        default:
+            throw new RuntimeException("Unsupported format "+outputFormat);
+        }
     }
 
     private String argumentList(Type[] arguments) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < arguments.length; i++) {
-            if (i != 0) {
-                sb.append(",");
+            switch (outputFormat) {
+                case TXT:
+                    if (i != 0) {
+                        sb.append(",");
+                    }
+                    sb.append(arguments[i].toString());
+                    break;
+                case XML:
+                    sb.append("<arg>");
+                    sb.append(arguments[i].getSignature());
+                    sb.append("</arg>");
+                    break;
+                default:
+                    throw new RuntimeException("Unsupported format "+outputFormat);
             }
-            sb.append(arguments[i].toString());
         }
         return sb.toString();
     }
@@ -66,12 +92,25 @@ public class MethodVisitor extends EmptyVisitor {
     public void start() {
         if (mg.isAbstract() || mg.isNative())
             return;
-        for (InstructionHandle ih = mg.getInstructionList().getStart(); 
+        switch (outputFormat) {
+            case XML:
+                output.println("<method name=\""+mg.getName()+"\">");
+                output.println("<signature>");
+                output.println(argumentList(mg.getArgumentTypes()));
+                output.println("</signature>");
+                break;
+        }
+        for (InstructionHandle ih = mg.getInstructionList().getStart();
                 ih != null; ih = ih.getNext()) {
             Instruction i = ih.getInstruction();
             
             if (!visitInstruction(i))
                 i.accept(this);
+        }
+        switch (outputFormat) {
+            case XML:
+                output.println("</method>");
+                break;
         }
     }
 
@@ -84,27 +123,27 @@ public class MethodVisitor extends EmptyVisitor {
 
     @Override
     public void visitINVOKEVIRTUAL(INVOKEVIRTUAL i) {
-        System.out.println(String.format(format,"M",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"M",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
     }
 
     @Override
     public void visitINVOKEINTERFACE(INVOKEINTERFACE i) {
-        System.out.println(String.format(format,"I",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"I",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
     }
 
     @Override
     public void visitINVOKESPECIAL(INVOKESPECIAL i) {
-        System.out.println(String.format(format,"O",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"O",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
     }
 
     @Override
     public void visitINVOKESTATIC(INVOKESTATIC i) {
-        System.out.println(String.format(format,"S",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"S",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
     }
 
     @Override
     public void visitINVOKEDYNAMIC(INVOKEDYNAMIC i) {
-        System.out.println(String.format(format,"D",i.getType(cp),i.getMethodName(cp),
+        output.println(String.format(format,"D",i.getType(cp),i.getMethodName(cp),
                 argumentList(i.getArgumentTypes(cp))));
     }
 }
