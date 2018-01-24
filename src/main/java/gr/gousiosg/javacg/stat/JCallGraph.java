@@ -127,6 +127,12 @@ public class JCallGraph {
         }
         ClassParser cp;
         try {
+            switch (format) {
+                case XML:
+                    outputStream.println("<?xml version=\"1.1\" encoding=\"UTF-8\"?>");
+                    outputStream.println("<root>");
+                    break;
+            }
             for (String arg : jars) {
 
                 File f = new File(arg);
@@ -150,6 +156,11 @@ public class JCallGraph {
                     ClassVisitor visitor = new ClassVisitor(cp.parse(),outputStream,format);
                     visitor.start();
                 }
+            }
+            switch (format) {
+                case XML:
+                    outputStream.println("</root>");
+                    break;
             }
         } catch (IOException e) {
             System.err.println("Error while processing jar: " + e.getMessage());

@@ -28,11 +28,7 @@
 
 package gr.gousiosg.javacg.stat;
 
-import org.apache.bcel.classfile.Constant;
-import org.apache.bcel.classfile.ConstantPool;
-import org.apache.bcel.classfile.EmptyVisitor;
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Method;
+import org.apache.bcel.classfile.*;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
 
@@ -49,6 +45,7 @@ public class ClassVisitor extends EmptyVisitor {
     private String classReferenceFormat;
     private PrintStream output;
     private FormatEnumaration format;
+    private ConstantPool currentConstantPool;
 
     public ClassVisitor(JavaClass jc, PrintStream outputStream, FormatEnumaration format) {
         clazz = jc;
@@ -60,7 +57,7 @@ public class ClassVisitor extends EmptyVisitor {
                 classReferenceFormat = "C:" + clazz.getClassName() + " %s";
                 break;
             case XML:
-                classReferenceFormat = "<constant>%s</constant>";
+                classReferenceFormat = "<constant tag=\"%s\">%s</constant>";
                 break;
             default:
                 throw new RuntimeException("Unsupported format "+format);
@@ -72,6 +69,16 @@ public class ClassVisitor extends EmptyVisitor {
         switch (format) {
             case XML:
                 output.println("<class name=\""+jc.getClassName()+"\">");
+                String[] names = jc.getInterfaceNames();
+                if (names != null && names.length>0) {
+                    output.println("<interfaces>");
+                    for (String name:names) {
+                        output.print("<interface>");
+                        output.print(name);
+                        output.println("</interface>");
+                    }
+                    output.println("</interfaces>");
+                }
                 break;
         }
         jc.getConstantPool().accept(this);
@@ -106,10 +113,13 @@ public class ClassVisitor extends EmptyVisitor {
                     if (constant == null)
                         continue;
                     if (constant.getTag() == 7) {
+                        output.print("<constant index=\"");
+                        output.print(i);
+                        output.print("\">");
                         String referencedClass =
                                 constantPool.constantToString(constant);
-                        output.println(String.format(classReferenceFormat,
-                                referencedClass));
+                        output.print(xmlEscapeText(referencedClass));
+                        output.println("</constant>");
                     }
                 }
         }
@@ -123,5 +133,70 @@ public class ClassVisitor extends EmptyVisitor {
 
     public void start() {
         visitJavaClass(clazz);
+    }
+
+    /**
+     * Encode special charaters for XML
+     * @param t
+     * @return
+     */
+    static String xmlEscapeText(String t) {
+        StringBuilder sb = null;
+        for(int i = 0; i < t.length(); i++){
+            char c = t.charAt(i);
+            switch(c){
+                case '<':
+                    if (sb==null) {
+                        sb = new StringBuilder(t.length()+10);
+                        sb.append(t.substring(0,i));
+                    }
+                    sb.append("&lt;");
+                    break;
+                case '>':
+                    if (sb==null) {
+                        sb = new StringBuilder(t.length()+10);
+                        sb.append(t.substring(0,i));
+                    }
+                    sb.append("&gt;");
+                    break;
+                case '\"':
+                    if (sb==null) {
+                        sb = new StringBuilder(t.length()+10);
+                        sb.append(t.substring(0,i));
+                    }
+                    sb.append("&quot;");
+                    break;
+                case '&':
+                    if (sb==null) {
+                        sb = new StringBuilder(t.length()+10);
+                        sb.append(t.substring(0,i));
+                    }
+                    sb.append("&amp;");
+                    break;
+                case '\'':
+                    if (sb==null) {
+                        sb = new StringBuilder(t.length()+10);
+                        sb.append(t.substring(0,i));
+                    }
+                    sb.append("&apos;");
+                    break;
+                default:
+                    if(c>0x7e || c<0x20) {
+                        if (sb==null) {
+                            sb = new StringBuilder(t.length()+10);
+                            sb.append(t.substring(0,i));
+                        }
+                        sb.append("&#"+((int)c)+";");
+                    }else if (sb != null) {
+                        sb.append(c);
+                    }
+            }
+        }
+        if (sb==null) {
+            //re-use original string
+            return t;
+        } else {
+            return sb.toString();
+        }
     }
 }

@@ -56,34 +56,35 @@ public class MethodVisitor extends EmptyVisitor {
         this.output = output;
         switch (outputFormat) {
         case TXT:
-            this.format = "M:" + visitedClass.getClassName() + ":" + mg.getName() + "(" + argumentList(mg.getArgumentTypes()) + ")"
+            this.format = "M:" + visitedClass.getClassName() + ":" + mg.getName() + "(" + argumentList(mg.getArgumentTypes(),false) + ")"
                     + " " + "(%s)%s:%s(%s)";
             break;
         case XML:
-            this.format = "<invoke type=\"%s\" reference=\"%s\" call=\"%s\"><args>%s</args></invoke>";
+            this.format = "<invoke type=\"%s\" reference=\"%s\" call=\"%s\" signature=\"%s\"/>";
             break;
         default:
             throw new RuntimeException("Unsupported format "+outputFormat);
         }
     }
 
-    private String argumentList(Type[] arguments) {
+    private String argumentList(Type[] arguments,boolean flat) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < arguments.length; i++) {
-            switch (outputFormat) {
-                case TXT:
-                    if (i != 0) {
-                        sb.append(",");
-                    }
-                    sb.append(arguments[i].toString());
-                    break;
-                case XML:
-                    sb.append("<arg>");
-                    sb.append(arguments[i].getSignature());
-                    sb.append("</arg>");
-                    break;
-                default:
-                    throw new RuntimeException("Unsupported format "+outputFormat);
+            if (flat || outputFormat==FormatEnumaration.TXT) {
+                if (i != 0) {
+                    sb.append(",");
+                }
+                sb.append(arguments[i].toString());
+            } else {
+                switch (outputFormat) {
+                    case XML:
+                        sb.append("<arg>");
+                        sb.append(arguments[i].getSignature());
+                        sb.append("</arg>");
+                        break;
+                    default:
+                        throw new RuntimeException("Unsupported format "+outputFormat);
+                }
             }
         }
         return sb.toString();
@@ -94,16 +95,20 @@ public class MethodVisitor extends EmptyVisitor {
             return;
         switch (outputFormat) {
             case XML:
-                output.println("<method name=\""+mg.getName()+"\">");
-                output.println("<signature>");
-                output.println(argumentList(mg.getArgumentTypes()));
-                output.println("</signature>");
+                output.print("<method name=\""+ClassVisitor.xmlEscapeText(mg.getName())+"\" signature=\"");
+                output.print(argumentList(mg.getArgumentTypes(),true));
+                output.println("\">");
                 break;
         }
         for (InstructionHandle ih = mg.getInstructionList().getStart();
                 ih != null; ih = ih.getNext()) {
             Instruction i = ih.getInstruction();
-            
+//            if (outputFormat== FormatEnumaration.XML && i instanceof ConstantPushInstruction) {
+//                ConstantPushInstruction pushInstruction = (ConstantPushInstruction)i;
+//                output.println("<ConstantPushInstruction>");
+//                output.println(pushInstruction.getValue());
+//                output.println("</ConstantPushInstruction>");
+//            }
             if (!visitInstruction(i))
                 i.accept(this);
         }
@@ -114,6 +119,11 @@ public class MethodVisitor extends EmptyVisitor {
         }
     }
 
+    @Override
+    public void visitLCONST(LCONST obj) {
+        super.visitLCONST(obj);
+    }
+
     private boolean visitInstruction(Instruction i) {
         short opcode = i.getOpcode();
         return ((InstructionConst.getInstruction(opcode) != null)
@@ -121,29 +131,38 @@ public class MethodVisitor extends EmptyVisitor {
                 && !(i instanceof ReturnInstruction));
     }
 
+//    @Override
+//    public void visitLocalVariableInstruction(LocalVariableInstruction obj) {
+//        switch (outputFormat) {
+//            case XML:
+//                output.println("<local name=\""+obj.getName()+"\">"+obj.toString(true)+"</local>");
+//                break;
+//        }
+//    }
+
     @Override
     public void visitINVOKEVIRTUAL(INVOKEVIRTUAL i) {
-        output.println(String.format(format,"M",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"M",i.getReferenceType(cp), ClassVisitor.xmlEscapeText(i.getMethodName(cp)),argumentList(i.getArgumentTypes(cp),true)));
     }
 
     @Override
     public void visitINVOKEINTERFACE(INVOKEINTERFACE i) {
-        output.println(String.format(format,"I",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"I",i.getReferenceType(cp),ClassVisitor.xmlEscapeText(i.getMethodName(cp)),argumentList(i.getArgumentTypes(cp),true)));
     }
 
     @Override
     public void visitINVOKESPECIAL(INVOKESPECIAL i) {
-        output.println(String.format(format,"O",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"O",i.getReferenceType(cp),ClassVisitor.xmlEscapeText(i.getMethodName(cp)),argumentList(i.getArgumentTypes(cp),true)));
     }
 
     @Override
     public void visitINVOKESTATIC(INVOKESTATIC i) {
-        output.println(String.format(format,"S",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"S",i.getReferenceType(cp),ClassVisitor.xmlEscapeText(i.getMethodName(cp)),argumentList(i.getArgumentTypes(cp),true)));
     }
 
     @Override
     public void visitINVOKEDYNAMIC(INVOKEDYNAMIC i) {
-        output.println(String.format(format,"D",i.getType(cp),i.getMethodName(cp),
-                argumentList(i.getArgumentTypes(cp))));
+        output.println(String.format(format,"D",i.getType(cp),ClassVisitor.xmlEscapeText(i.getMethodName(cp)),
+                argumentList(i.getArgumentTypes(cp),true)));
     }
 }
