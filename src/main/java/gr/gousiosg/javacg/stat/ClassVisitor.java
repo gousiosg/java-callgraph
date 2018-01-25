@@ -40,6 +40,8 @@ import java.io.PrintStream;
  */
 public class ClassVisitor extends EmptyVisitor {
 
+    private static final String OBJECT = Object.class.getName();
+    private static final String ENUMERATION = Enum.class.getName();
     private JavaClass clazz;
     private ConstantPoolGen constants;
     private String classReferenceFormat;
@@ -78,6 +80,11 @@ public class ClassVisitor extends EmptyVisitor {
                         output.println("</interface>");
                     }
                     output.println("</interfaces>");
+                }
+                if (OBJECT.equals(jc.getSuperclassName())==false) {
+                    output.print("<super>");
+                    output.print(jc.getSuperclassName());
+                    output.println("</super>");
                 }
                 break;
         }
