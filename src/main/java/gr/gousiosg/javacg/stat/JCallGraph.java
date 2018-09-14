@@ -30,9 +30,11 @@ package gr.gousiosg.javacg.stat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import gr.gousiosg.javacg.stat.Options;
 
 import org.apache.bcel.classfile.ClassParser;
 
@@ -44,16 +46,33 @@ import org.apache.bcel.classfile.ClassParser;
  * 
  */
 public class JCallGraph {
-
+	
+	
     public static void main(String[] args) {
+    	
         ClassParser cp;
         try {
-            for (String arg : args) {
+        	ArrayList<String> allowedOptions = Options.getAllReferences();
+        	ArrayList<String> options = new ArrayList<String>();
+        	ArrayList<String> jars = new ArrayList<String>();
+        	
+        	//parse out any option arguments
+        	for (String arg : args) {
 
-                File f = new File(arg);
+                if(allowedOptions.contains(arg)) {
+                	options.add(arg);
+                }
+                else {
+                	jars.add(arg);
+                }
+        	}
+        	
+            for (String jarFile : jars) {
+
+                File f = new File(jarFile);
                 
                 if (!f.exists()) {
-                    System.err.println("Jar file " + arg + " does not exist");
+                    System.err.println("Jar file " + jarFile + " does not exist");
                 }
                 
                 JarFile jar = new JarFile(f);
@@ -67,8 +86,9 @@ public class JCallGraph {
                     if (!entry.getName().endsWith(".class"))
                         continue;
 
-                    cp = new ClassParser(arg,entry.getName());
-                    ClassVisitor visitor = new ClassVisitor(cp.parse());
+                    cp = new ClassParser(jarFile,entry.getName());
+                    ClassVisitor visitor;
+                    visitor = new ClassVisitor(cp.parse(), options);
                     visitor.start();
                 }
             }

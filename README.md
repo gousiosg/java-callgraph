@@ -42,6 +42,16 @@ java -jar javacg-0.1-SNAPSHOT-static.jar lib1.jar lib2.jar...
 ```
   M:class1:<method1>(arg_types) (typeofcall)class2:<method2>(arg_types)
 ```
+###### For static options
+
+`javacg-static` includes option -m or --modifier which will provide the comma seperated modifier(s) (public, static, private, etc...) for the methods and classes
+
+for example:
+```
+  java -jar javacg-0.1-SNAPSHOT-static.jar -m lib1.jar lib2.jar...
+  
+  M:<modifiers>:class1:<method1>(arg_types) (typeofcall)class2:<method2>(arg_types)
+```
 
 The line means that `method1` of `class1` called `method2` of `class2`.
 The type of call can have one of the following values (refer to
