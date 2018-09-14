@@ -28,6 +28,9 @@
 
 package gr.gousiosg.javacg.stat;
 
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.*;
 
@@ -44,14 +47,27 @@ public class MethodVisitor extends EmptyVisitor {
     private ConstantPoolGen cp;
     private String format;
 
+    
     public MethodVisitor(MethodGen m, JavaClass jc) {
+        this(m, jc, null);
+    }
+    public MethodVisitor(MethodGen m, JavaClass jc, ArrayList<String> options) {
+    	
         visitedClass = jc;
         mg = m;
         cp = mg.getConstantPool();
-        format = "M:" + visitedClass.getClassName() + ":" + mg.getName() + "(" + argumentList(mg.getArgumentTypes()) + ")"
-            + " " + "(%s)%s:%s(%s)";
+        String mStr = "Pub";
+        
+        // if option arguments include modifier add modifier attribute
+	    if(options != null && Options.MODIFIER.matches(options)){
+	        format = "M:" + Modifier.toString(mg.getModifiers()).replaceAll(" ", ",") + ":" + visitedClass.getClassName() + ":" + mg.getName() + "(" + argumentList(mg.getArgumentTypes()) + ")"
+	            + " " + "(%s)%s:%s(%s)";
+    	}
+    	else{
+    		format = "M:" + visitedClass.getClassName() + ":" + mg.getName() + "(" + argumentList(mg.getArgumentTypes()) + ")"
+    	            + " " + "(%s)%s:%s(%s)";
+    	}
     }
-
     private String argumentList(Type[] arguments) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < arguments.length; i++) {

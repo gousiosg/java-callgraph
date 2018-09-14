@@ -28,6 +28,9 @@
 
 package gr.gousiosg.javacg.stat;
 
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+
 import org.apache.bcel.classfile.Constant;
 import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.classfile.EmptyVisitor;
@@ -45,13 +48,23 @@ public class ClassVisitor extends EmptyVisitor {
     private JavaClass clazz;
     private ConstantPoolGen constants;
     private String classReferenceFormat;
+    private ArrayList<String> options = null; 
     
     public ClassVisitor(JavaClass jc) {
         clazz = jc;
         constants = new ConstantPoolGen(clazz.getConstantPool());
         classReferenceFormat = "C:" + clazz.getClassName() + " %s";
     }
-
+    public ClassVisitor(JavaClass jc, ArrayList<String> options) {
+    	this(jc);
+    	this.options = options;
+    	
+    	// if option arguments include modifier add modifier attribute
+    	if(Options.MODIFIER.matches(options)) {
+    		classReferenceFormat = "C:" +  Modifier.toString(clazz.getModifiers()).replaceAll(" ", ",") + ":" + clazz.getClassName() + " %s";
+    	}
+    }
+    
     public void visitJavaClass(JavaClass jc) {
         jc.getConstantPool().accept(this);
         Method[] methods = jc.getMethods();
@@ -75,7 +88,7 @@ public class ClassVisitor extends EmptyVisitor {
 
     public void visitMethod(Method method) {
         MethodGen mg = new MethodGen(method, clazz.getClassName(), constants);
-        MethodVisitor visitor = new MethodVisitor(mg, clazz);
+        MethodVisitor visitor = new MethodVisitor(mg, clazz, options);
         visitor.start(); 
     }
 
