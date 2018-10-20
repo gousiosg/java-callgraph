@@ -101,7 +101,7 @@ public class Instrumenter implements ClassFileTransformer {
         instrumentation.addTransformer(new Instrumenter());
     }
 
-    public byte[] transform(ClassLoader loader, String className, Class clazz,
+    public byte[] transform(ClassLoader loader, String className, Class<?> clazz,
             java.security.ProtectionDomain domain, byte[] bytes) {
         boolean enhanceClass = false;
 
