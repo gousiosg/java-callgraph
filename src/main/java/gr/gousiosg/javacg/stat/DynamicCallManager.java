@@ -44,7 +44,7 @@ import org.apache.bcel.classfile.Method;
  */
 public class DynamicCallManager {
     private static final Pattern BOOTSTRAP_CALL_PATTERN = Pattern
-            .compile("invokedynamic\t(\\d+):[^:]+:\\S+ \\(\\d+\\)");
+            .compile("invokedynamic\t(\\d+):\\S+ \\S+ \\(\\d+\\)");
     private static final int CALL_HANDLE_INDEX_ARGUMENT = 1;
 
     private final Map<String, String> dynamicCallers = new HashMap<>();
