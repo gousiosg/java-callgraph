@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 import org.apache.bcel.classfile.Attribute;
 import org.apache.bcel.classfile.BootstrapMethod;
 import org.apache.bcel.classfile.BootstrapMethods;
+import org.apache.bcel.classfile.ConstantCP;
 import org.apache.bcel.classfile.ConstantMethodHandle;
-import org.apache.bcel.classfile.ConstantMethodref;
 import org.apache.bcel.classfile.ConstantNameAndType;
 import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.classfile.ConstantUtf8;
@@ -80,7 +80,7 @@ public class DynamicCallManager {
 
     private String getMethodNameFromHandleIndex(ConstantPool cp, int callIndex) {
         ConstantMethodHandle handle = (ConstantMethodHandle) cp.getConstant(callIndex);
-        ConstantMethodref ref = (ConstantMethodref) cp.getConstant(handle.getReferenceIndex());
+        ConstantCP ref = (ConstantCP) cp.getConstant(handle.getReferenceIndex());
         ConstantNameAndType nameAndType = (ConstantNameAndType) cp.getConstant(ref.getNameAndTypeIndex());
         return nameAndType.getName(cp);
     }
