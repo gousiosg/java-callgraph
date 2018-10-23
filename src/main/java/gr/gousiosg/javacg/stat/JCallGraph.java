@@ -51,26 +51,26 @@ public class JCallGraph {
             for (String arg : args) {
 
                 File f = new File(arg);
-                
+
                 if (!f.exists()) {
                     System.err.println("Jar file " + arg + " does not exist");
                 }
-                
-                JarFile jar = new JarFile(f);
 
-                Enumeration<JarEntry> entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    if (entry.isDirectory())
-                        continue;
+                try (JarFile jar = new JarFile(f)) {
+                	Enumeration<JarEntry> entries = jar.entries();
+                	while (entries.hasMoreElements()) {
+                		JarEntry entry = entries.nextElement();
+                		if (entry.isDirectory())
+                			continue;
+                		
+                		if (!entry.getName().endsWith(".class"))
+                			continue;
 
-                    if (!entry.getName().endsWith(".class"))
-                        continue;
-
-                    cp = new ClassParser(arg,entry.getName());
-                    ClassVisitor visitor = new ClassVisitor(cp.parse());
-                    visitor.start();
-                }
+                		cp = new ClassParser(arg,entry.getName());
+                		ClassVisitor visitor = new ClassVisitor(cp.parse());
+                		visitor.start();
+                	}
+				}
             }
         } catch (IOException e) {
             System.err.println("Error while processing jar: " + e.getMessage());
