@@ -31,6 +31,10 @@ package gr.gousiosg.javacg.stat;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * The simplest of method visitors, prints any invoked method
  * signature for all method invocations.
@@ -43,6 +47,7 @@ public class MethodVisitor extends EmptyVisitor {
     private MethodGen mg;
     private ConstantPoolGen cp;
     private String format;
+    private List<String> methodCalls = new ArrayList<>();
 
     public MethodVisitor(MethodGen m, JavaClass jc) {
         visitedClass = jc;
@@ -63,9 +68,10 @@ public class MethodVisitor extends EmptyVisitor {
         return sb.toString();
     }
 
-    public void start() {
+    public List<String> start() {
         if (mg.isAbstract() || mg.isNative())
-            return;
+            return Collections.emptyList();
+
         for (InstructionHandle ih = mg.getInstructionList().getStart(); 
                 ih != null; ih = ih.getNext()) {
             Instruction i = ih.getInstruction();
@@ -73,6 +79,7 @@ public class MethodVisitor extends EmptyVisitor {
             if (!visitInstruction(i))
                 i.accept(this);
         }
+        return methodCalls;
     }
 
     private boolean visitInstruction(Instruction i) {
@@ -84,27 +91,27 @@ public class MethodVisitor extends EmptyVisitor {
 
     @Override
     public void visitINVOKEVIRTUAL(INVOKEVIRTUAL i) {
-        System.out.println(String.format(format,"M",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        methodCalls.add(String.format(format,"M",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
     }
 
     @Override
     public void visitINVOKEINTERFACE(INVOKEINTERFACE i) {
-        System.out.println(String.format(format,"I",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        methodCalls.add(String.format(format,"I",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
     }
 
     @Override
     public void visitINVOKESPECIAL(INVOKESPECIAL i) {
-        System.out.println(String.format(format,"O",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        methodCalls.add(String.format(format,"O",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
     }
 
     @Override
     public void visitINVOKESTATIC(INVOKESTATIC i) {
-        System.out.println(String.format(format,"S",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
+        methodCalls.add(String.format(format,"S",i.getReferenceType(cp),i.getMethodName(cp),argumentList(i.getArgumentTypes(cp))));
     }
 
     @Override
     public void visitINVOKEDYNAMIC(INVOKEDYNAMIC i) {
-        System.out.println(String.format(format,"D",i.getType(cp),i.getMethodName(cp),
+        methodCalls.add(String.format(format,"D",i.getType(cp),i.getMethodName(cp),
                 argumentList(i.getArgumentTypes(cp))));
     }
 }

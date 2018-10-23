@@ -36,6 +36,9 @@ import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The simplest of class visitors, invokes the method visitor class for each
  * method found.
@@ -46,7 +49,8 @@ public class ClassVisitor extends EmptyVisitor {
     private ConstantPoolGen constants;
     private String classReferenceFormat;
     private final DynamicCallManager DCManager = new DynamicCallManager();
-    
+    private List<String> methodCalls = new ArrayList<>();
+
     public ClassVisitor(JavaClass jc) {
         clazz = jc;
         constants = new ConstantPoolGen(clazz.getConstantPool());
@@ -73,8 +77,7 @@ public class ClassVisitor extends EmptyVisitor {
             if (constant.getTag() == 7) {
                 String referencedClass = 
                     constantPool.constantToString(constant);
-                System.out.println(String.format(classReferenceFormat,
-                        referencedClass));
+                System.out.println(String.format(classReferenceFormat, referencedClass));
             }
         }
     }
@@ -82,10 +85,15 @@ public class ClassVisitor extends EmptyVisitor {
     public void visitMethod(Method method) {
         MethodGen mg = new MethodGen(method, clazz.getClassName(), constants);
         MethodVisitor visitor = new MethodVisitor(mg, clazz);
-        visitor.start(); 
+        methodCalls.addAll(visitor.start());
     }
 
-    public void start() {
+    public ClassVisitor start() {
         visitJavaClass(clazz);
+        return this;
+    }
+
+    public List<String> methodCalls() {
+        return this.methodCalls;
     }
 }
