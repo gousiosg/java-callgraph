@@ -1,3 +1,31 @@
+/*
+ * Copyright (c) 2018 - Matthieu Vergne <matthieu.vergne@gmail.com>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package gr.gousiosg.javacg.stat;
 
 import java.util.HashMap;
@@ -38,9 +66,8 @@ import org.apache.bcel.classfile.Method;
  * caller) relationships by analyzing the code of the caller {@link Method}.
  * This information is then used in {@link #linkCalls(Method)} to rename the
  * called {@link Method} properly.
- * 
- * @author Matthieu Vergne <matthieu.vergne@gmail.com>
  *
+ * @author Matthieu Vergne <matthieu.vergne@gmail.com>
  */
 public class DynamicCallManager {
     private static final Pattern BOOTSTRAP_CALL_PATTERN = Pattern
@@ -52,11 +79,9 @@ public class DynamicCallManager {
     /**
      * Retrieve dynamic call relationships based on the code of the provided
      * {@link Method}.
-     * 
-     * @param method
-     *            {@link Method} to analyze the code
-     * @param jc
-     *            {@link JavaClass} info, which contains the bootstrap methods
+     *
+     * @param method {@link Method} to analyze the code
+     * @param jc     {@link JavaClass} info, which contains the bootstrap methods
      * @see #linkCalls(Method)
      */
     public void retrieveCalls(Method method, JavaClass jc) {
@@ -87,9 +112,8 @@ public class DynamicCallManager {
 
     /**
      * Link the {@link Method}'s name to its concrete caller if required.
-     * 
-     * @param method
-     *            {@link Method} to analyze
+     *
+     * @param method {@link Method} to analyze
      * @see #retrieveCalls(Method, JavaClass)
      */
     public void linkCalls(Method method) {
@@ -111,6 +135,6 @@ public class DynamicCallManager {
                 return ((BootstrapMethods) attribute).getBootstrapMethods();
             }
         }
-        return new BootstrapMethod[] {};
+        return new BootstrapMethod[]{};
     }
 }
