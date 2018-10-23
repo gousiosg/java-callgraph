@@ -1,4 +1,4 @@
-package javacg;
+package gr.gousiosg.javacg;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

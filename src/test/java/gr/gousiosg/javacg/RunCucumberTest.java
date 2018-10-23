@@ -1,4 +1,4 @@
-package javacg;
+package gr.gousiosg.javacg;
 
 import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
