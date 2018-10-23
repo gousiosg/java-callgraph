@@ -27,7 +27,7 @@ public class Pair<A, B> {
         if (obj.getClass() != getClass())
             return false;
 
-        Pair p = (Pair)obj;
+        Pair<?, ?> p = (Pair<?, ?>)obj;
 
         return first.equals(p.first) && second.equals(p.second);
     }
