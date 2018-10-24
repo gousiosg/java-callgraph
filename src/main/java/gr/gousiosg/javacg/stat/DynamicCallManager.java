@@ -70,7 +70,7 @@ public class DynamicCallManager {
      * @see #linkCalls(Method)
      */
     public void retrieveCalls(Method method, JavaClass jc) {
-        if (method.isAbstract()) {
+        if (method.isAbstract() || method.isNative()) {
             // No code to consider
             return;
         }
