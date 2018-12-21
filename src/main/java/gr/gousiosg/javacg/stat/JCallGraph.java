@@ -57,6 +57,11 @@ public class JCallGraph {
                     }
                 };
 
+        String mainClass = System.getProperty("mainClass");
+
+        //reset the mainClass property
+        System.setProperty("mainClass","");
+
         try {
             for (String arg : args) {
 
@@ -68,19 +73,43 @@ public class JCallGraph {
 
                 try (JarFile jar = new JarFile(f)) {
                     Stream<JarEntry> entries = enumerationAsStream(jar.entries());
+                    String methodCalls  = null;
 
-                    String methodCalls = entries.
-                            flatMap(e -> {
-                                if (e.isDirectory() || !e.getName().endsWith(".class"))
-                                    return (new ArrayList<String>()).stream();
+                    if(mainClass!=null){
+                        final String mainClassName = mainClass+".class";
+                        methodCalls = entries.
+                                flatMap(e -> {
+                                    if (e.isDirectory() || !e.getName().endsWith(".class"))
+                                        return (new ArrayList<String>()).stream();
 
-                                ClassParser cp = new ClassParser(arg, e.getName());
-                                return getClassVisitor.apply(cp).start().methodCalls().stream();
-                            }).
-                            map(s -> s + "\n").
-                            reduce(new StringBuilder(),
-                                    StringBuilder::append,
-                                    StringBuilder::append).toString();
+                                    String className = e.getName().replace("/",".");
+
+                                    if(mainClassName.equals(className)){
+                                        ClassParser cp = new ClassParser(arg, e.getName());
+                                        return getClassVisitor.apply(cp).start().methodCalls().stream();
+                                    }else{
+                                        return (new ArrayList<String>()).stream();
+                                    }
+                                }).
+                                map(s -> s + "\n").
+                                reduce(new StringBuilder(),
+                                        StringBuilder::append,
+                                        StringBuilder::append).toString();
+                    }else{
+                        methodCalls = entries.
+                                flatMap(e -> {
+                                    if (e.isDirectory() || !e.getName().endsWith(".class"))
+                                        return (new ArrayList<String>()).stream();
+
+
+                                    ClassParser cp = new ClassParser(arg, e.getName());
+                                    return getClassVisitor.apply(cp).start().methodCalls().stream();
+                                }).
+                                map(s -> s + "\n").
+                                reduce(new StringBuilder(),
+                                        StringBuilder::append,
+                                        StringBuilder::append).toString();
+                    }
 
                     BufferedWriter log = new BufferedWriter(new OutputStreamWriter(System.out));
                     log.write(methodCalls);

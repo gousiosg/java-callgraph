@@ -70,16 +70,16 @@ public class ClassVisitor extends EmptyVisitor {
     }
 
     public void visitConstantPool(ConstantPool constantPool) {
-        for (int i = 0; i < constantPool.getLength(); i++) {
-            Constant constant = constantPool.getConstant(i);
-            if (constant == null)
-                continue;
-            if (constant.getTag() == 7) {
-                String referencedClass = 
-                    constantPool.constantToString(constant);
-                System.out.println(String.format(classReferenceFormat, referencedClass));
-            }
-        }
+//        for (int i = 0; i < constantPool.getLength(); i++) {
+//            Constant constant = constantPool.getConstant(i);
+//            if (constant == null)
+//                continue;
+//            if (constant.getTag() == 7) {
+//                String referencedClass =
+//                    constantPool.constantToString(constant);
+//                System.out.println(String.format(classReferenceFormat, referencedClass));
+//            }
+//        }
     }
 
     public void visitMethod(Method method) {
