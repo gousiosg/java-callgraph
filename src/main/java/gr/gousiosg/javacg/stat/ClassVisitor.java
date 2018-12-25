@@ -33,6 +33,7 @@ import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.classfile.EmptyVisitor;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
+import org.apache.bcel.generic.BasicType;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
 
@@ -84,9 +85,16 @@ public class ClassVisitor extends EmptyVisitor {
 
     public void visitMethod(Method method) {
         MethodGen mg = new MethodGen(method, clazz.getClassName(), constants);
-        MethodVisitor visitor = new MethodVisitor(mg, clazz);
-        methodCalls.addAll(visitor.start());
+        
+        if(methodIsMain(mg)) {
+        	MethodVisitor visitor = new MethodVisitor(mg, clazz);
+            methodCalls.addAll(visitor.start());	
+        }
     }
+
+    private boolean methodIsMain(MethodGen mg) {    	    
+    	return (mg.getName().equals("main")&&mg.getReturnType().equals(BasicType.VOID)&&mg.isStatic());
+	}
 
     public ClassVisitor start() {
         visitJavaClass(clazz);

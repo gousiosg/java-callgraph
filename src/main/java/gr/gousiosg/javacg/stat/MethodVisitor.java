@@ -28,12 +28,26 @@
 
 package gr.gousiosg.javacg.stat;
 
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.generic.*;
-
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.generic.ConstantPoolGen;
+import org.apache.bcel.generic.ConstantPushInstruction;
+import org.apache.bcel.generic.EmptyVisitor;
+import org.apache.bcel.generic.INVOKEDYNAMIC;
+import org.apache.bcel.generic.INVOKEINTERFACE;
+import org.apache.bcel.generic.INVOKESPECIAL;
+import org.apache.bcel.generic.INVOKESTATIC;
+import org.apache.bcel.generic.INVOKEVIRTUAL;
+import org.apache.bcel.generic.Instruction;
+import org.apache.bcel.generic.InstructionConst;
+import org.apache.bcel.generic.InstructionHandle;
+import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.ReturnInstruction;
+import org.apache.bcel.generic.Type;
 
 /**
  * The simplest of method visitors, prints any invoked method
@@ -47,7 +61,7 @@ public class MethodVisitor extends EmptyVisitor {
     private MethodGen mg;
     private ConstantPoolGen cp;
     private String format;
-    private List<String> methodCalls = new ArrayList<>();
+    private Set<String> methodCalls = new HashSet<>();
 
     public MethodVisitor(MethodGen m, JavaClass jc) {
         visitedClass = jc;
@@ -69,9 +83,9 @@ public class MethodVisitor extends EmptyVisitor {
         return sb.toString();
     }
 
-    public List<String> start() {
+    public Set<String> start() {
         if (mg.isAbstract() || mg.isNative())
-            return Collections.emptyList();
+            return Collections.emptySet();
 
         for (InstructionHandle ih = mg.getInstructionList().getStart(); 
                 ih != null; ih = ih.getNext()) {
