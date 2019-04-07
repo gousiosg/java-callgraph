@@ -31,10 +31,10 @@ package gr.gousiosg.javacg.stat;
 import java.io.*;
 import java.util.*;
 import java.util.function.Function;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.bcel.classfile.ClassParser;
 
@@ -66,8 +66,8 @@ public class JCallGraph {
                     System.err.println("Jar file " + arg + " does not exist");
                 }
 
-                try (JarFile jar = new JarFile(f)) {
-                    Stream<JarEntry> entries = enumerationAsStream(jar.entries());
+                try (ZipFile jar = new ZipFile(f)) {
+                    Stream<? extends ZipEntry> entries = enumerationAsStream(jar.entries());
 
                     String methodCalls = entries.
                             flatMap(e -> {
