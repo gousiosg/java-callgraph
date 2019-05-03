@@ -166,12 +166,23 @@ public class Instrumenter implements ClassFileTransformer {
             throws NotFoundException, CannotCompileException {
         String name = className.substring(className.lastIndexOf('.') + 1, className.length());
         String methodName = method.getName();
+        StringBuilder params = new StringBuilder();
+        boolean first = true;
+        for (CtClass p : method.getParameterTypes()) {
+            if (!first) {
+                params.append(",");
+            } else {
+                first = false;
+            }
+            params.append(p.getName());
+        }
 
         if (method.getName().equals(name))
             methodName = "<init>";
 
-        method.insertBefore("gr.gousiosg.javacg.dyn.MethodStack.push(\"" + className
-                + ":" + methodName + "\");");
+        String signature = className + ":" + methodName + "(" + params.toString() + ")";
+
+        method.insertBefore("gr.gousiosg.javacg.dyn.MethodStack.push(\"" + signature + "\");");
         method.insertAfter("gr.gousiosg.javacg.dyn.MethodStack.pop();");
     }
 

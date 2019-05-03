@@ -40,10 +40,11 @@ java -jar javacg-0.1-SNAPSHOT-static.jar lib1.jar lib2.jar...
 ###### For methods
 
 ```
-  M:class1:<method1>(arg_types) (typeofcall)class2:<method2>(arg_types)
+  M:class1:<method1>(arg_types1) (typeofcall)class2:<method2>(arg_types2)
 ```
 
-The line means that `method1` of `class1` called `method2` of `class2`.
+The line means that `method1` of `class1` with arguments `arg_types1` called `method2` of `class2` with arguments `arg_types2`.
+`arg_types` are (potentially empty) comma-separated (no space after comma) lists of method arguments, where each argument is a fully-qualified class name. 
 The type of call can have one of the following values (refer to
 the [JVM specification](http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html)
 for the meaning of the calls):
@@ -102,7 +103,7 @@ java
 writes method call pairs as shown below:
 
 ```
-class1:method1 class2:method2 numcalls
+class1:method1(arg_types1) class2:method2(arg_types2) numcalls
 ```
 
 It also produces a file named `calltrace.txt` in which it writes the entry
@@ -110,12 +111,11 @@ and exit timestamps for methods, thereby turning `javacg-dynamic` into
 a poor man's profiler. The format is the following:
 
 ```
-<>[stack_depth][thread_id]fqdn.class:method=timestamp_nanos
+<>[stack_depth][thread_id]fqdn.class:method(arg_types)=timestamp_nanos
 ```
 
 The output line starts with a `<` or `>` depending on whether it is a method
-entry or exit. It then writes the stack depth, thread id and the class and
-method name, followed by a timestamp. The provided `process_trace.rb`
+entry or exit. It then writes the stack depth; thread id; and the class, method name, and method arguments; followed by a timestamp. The provided `process_trace.rb`
 script processes the callgraph output to generate total time per method
 information.
 
